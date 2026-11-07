@@ -63,6 +63,8 @@ def partial(cur: dict, want: dict, dims: set[str]) -> dict:
                 out["allocations"].setdefault(k, {})[d] = copy.deepcopy(policy.dist(want, k, d))
     if "schedule" in dims and same_cohorts:
         out["schedule"] = copy.deepcopy(want["schedule"])
+    if "prompt_version" in dims:
+        out["prompt_version"] = want["prompt_version"]
     return snap(out, cur)
 
 

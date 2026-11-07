@@ -15,7 +15,10 @@ EXPLORE_SHARE = 0.05      # share given to each untested option: a -15% arm cost
 EXPLORE_CAP = 0.15        # all untested options of one dimension together never get more than this
 CHALLENGER_CAP = 0.30     # before promotion, no challenger gets more than this (Thompson can't run away)
 MIN_ARM_N = 300           # connected calls per arm before a winner can be declared (≈ +20% lift at 80% power)
-P_PROMOTE = 0.95          # P(challenger beats incumbent) needed for a workflow-level promotion
+P_PROMOTE = 0.975         # P(challenger beats incumbent) needed for a workflow-level promotion. Chosen from
+                          # the A/A test (tests/test_controller_units.py): with daily peeking and decayed counts,
+                          # 0.95 crowns a false winner 9.5% of the time, 0.975 2.8%, 0.99 0.7% (but power at
+                          # +15% falls 0.88 → 0.71 → 0.55)
 P_PROMOTE_SEGMENT = 0.99  # stricter bar for segment-level claims: many more looks → more false winners
 MAX_EXPECTED_LOSS = 0.003 # expected engagement lost if we switch and are wrong (absolute, ≈0.5% relative)
 P_DROP_LOSER = 0.95       # P(arm worse than incumbent) at which an arm is taken to 0

@@ -619,6 +619,11 @@ class Controller:
         today = now // MIN_PER_DAY
         if not urgent and self.S(wid, "review_day", -1) < today:
             return  # non-urgent changes go out once a day, after the morning review, as one batch
+        if urgent:  # an urgent fix carries only what is urgent: easy to say yes to, clean evidence
+            want = PL.partial(cur, want, urgent_dims & set(rest))
+            dims = policy.changed_dims(cur, want)
+            if not dims:
+                return
         fields = PL.proposal_fields(w, cur, want, dims, st, self.ing.counters, today, evidence)
         if "prompt_version" in dims:
             inc = self.S(wid, "incident") or {}

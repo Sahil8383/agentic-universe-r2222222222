@@ -90,6 +90,11 @@ class Governance:
             r = self.client.post("/approvals", body, idempotent=True)
             maybe_crash("approval_after_post")
         except SimError as e:
+            if e.status >= 500:  # we don't know if it landed: stay 'submitting'; reconcile resends the same id
+                with self.store.tx():
+                    self.store.decide(now, wid, "retry", f"no answer from the simulator ({e.code}); will resend "
+                                      "the same proposal id, which is safe", e.detail, proposal_id=pid)
+                return
             with self.store.tx():
                 if e.code == "duplicate_proposal_id":
                     self._adopt_remote(now, pid, wid)
@@ -141,6 +146,8 @@ class Governance:
             r = self.client.put(f"/workflows/{wid}/config", body, idempotent=True)
             maybe_crash("auto_after_put")
         except SimError as e:
+            if e.status >= 500:  # unknown outcome: stay 'submitting', reconcile resolves it via /config/history
+                return None
             with self.store.tx():
                 if e.code == "duplicate_proposal_id":
                     return self._adopt_auto(now, pid, wid, body)
