@@ -21,6 +21,7 @@ import json
 
 from . import policy
 from .client import SimClient, SimError
+from .faults import maybe_crash
 from .store import Store
 
 OPEN = ("submitting", "pending", "approved", "applying")
@@ -84,8 +85,10 @@ class Governance:
 
     def _send_approval(self, now: int, pid: str, body: dict):
         wid = body["workflow_id"]
+        maybe_crash("approval_after_intent")
         try:
             r = self.client.post("/approvals", body, idempotent=True)
+            maybe_crash("approval_after_post")
         except SimError as e:
             with self.store.tx():
                 if e.code == "duplicate_proposal_id":
@@ -133,8 +136,10 @@ class Governance:
         return self._send_auto(now, pid, wid, body)
 
     def _send_auto(self, now, pid, wid, body) -> int | None:
+        maybe_crash("auto_after_intent")
         try:
             r = self.client.put(f"/workflows/{wid}/config", body, idempotent=True)
+            maybe_crash("auto_after_put")
         except SimError as e:
             with self.store.tx():
                 if e.code == "duplicate_proposal_id":
@@ -217,8 +222,10 @@ class Governance:
     def _apply(self, now, wid, pid, aid, body) -> int | None:
         with self.store.tx():
             self._set(pid, state="applying")
+        maybe_crash("apply_before_post")
         try:
             r = self.client.post(f"/workflows/{wid}/apply", {"approval_id": aid}, idempotent=True)
+            maybe_crash("apply_after_post")
         except SimError as e:
             with self.store.tx():
                 if e.status == 410:

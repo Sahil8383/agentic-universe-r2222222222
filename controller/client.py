@@ -67,6 +67,8 @@ class SimClient:
         for attempt in range(self.retries + 1):
             try:
                 with self.http.stream("GET", f"/events/chunks/{n}") as r:
+                    if r.status_code >= 500:
+                        raise httpx.TransportError(f"chunk {n}: {r.status_code}")
                     if r.status_code >= 400:
                         r.read()
                         self._json(r)

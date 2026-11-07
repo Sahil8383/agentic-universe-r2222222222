@@ -21,6 +21,7 @@ from collections import defaultdict
 from datetime import datetime
 
 from .client import SimClient
+from .faults import maybe_crash
 from .store import Store
 
 UNKNOWN = 0xFFFF  # "no lead event seen for this index" in the feature-code array
@@ -80,7 +81,7 @@ class Ingestor:
     # ---------------------------------------------------------------- restart
     def _load(self):
         for code, fj in self.store.q("SELECT code, features_json FROM feature_codes ORDER BY code"):
-            feats = tuple(json.loads(fj))
+            feats = tuple(tuple(kv) for kv in json.loads(fj))  # JSON gives lists; dict keys need tuples
             self.code_of[feats] = code
             self.fv_of.append(tuple(f"{k}={v}" for k, v in feats))
         for wid, idx, code, _day in self.store.q("SELECT wid, idx, code, day FROM leads"):
@@ -232,6 +233,8 @@ class Ingestor:
                 out["approval_events"].append(ev)
             out["events"] += 1
 
+        if not history:
+            maybe_crash("ingest_before_commit")
         with self.store.tx() as db:
             if new_codes:
                 db.executemany("INSERT OR IGNORE INTO feature_codes(code, features_json) VALUES(?,?)", new_codes)
