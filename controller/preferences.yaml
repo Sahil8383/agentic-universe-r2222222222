@@ -1,0 +1,9 @@
+# Stakeholder preferences that are stricter than the signed policy. Keyed by tenant id; applied only if
+# that tenant exists in the running world. The policy from GET /workflows is always the hard limit.
+
+kestrel_finance:            # memo 04 (client ops supervisor)
+  max_requests_per_day: 2   # "two requests a day" (policy allows 4); one of the two is kept for incidents
+  not_before_hour: 11       # "nothing before 11:00" (policy opens at 10:00); incident fixes may go at 10:00
+  auto_apply_customer_facing: false  # "tell me before a running campaign changes": welcome/voice go through
+                                     # approval even though the policy would auto-apply them; safety
+                                     # rollbacks are the exception
