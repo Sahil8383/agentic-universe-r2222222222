@@ -1,3 +1,11 @@
+> **Submission (Sahil Bhatt), start here:**
+> [`SUBMISSION.md`](SUBMISSION.md) is the write-up, [`controller/`](controller/) is the code, and
+> [`reports/`](reports/) holds the graded runs, the crash test and the load test.
+> Results: public_01 **+11.2%**, public_02 **+27.6%**, public_03 **+18.6%** conclusion rate vs baseline, with
+> **0 harmful changes**. `kill -9` at any point is safe, and the load test runs at 33 s of wall-clock per simulated day.
+> Run it: `make serve SCENARIO=scenarios/public_01_dev.yaml` in one terminal, then `./run.sh http://127.0.0.1:8700`.
+> Everything below this box is the original assignment, unchanged.
+
 # Outcome-First Agent Loop — Senior Engineer Assignment
 
 **Formi · Agentic Universe** · Greenfield · Suggested effort 12–16 hours across 7 calendar days
